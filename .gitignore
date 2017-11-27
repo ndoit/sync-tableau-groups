@@ -1,3 +1,6 @@
+.DS_Store
+.vscode/
+
 tableausync.d*
 tableausync.log*
 tableausync.conf

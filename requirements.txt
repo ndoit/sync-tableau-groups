@@ -1,0 +1,11 @@
+certifi==2017.11.5
+chardet==3.0.4
+configparser==3.5.0
+idna==2.6
+ldap3==2.3
+logging==0.4.9.6
+pyasn1==0.3.7
+requests==2.18.4
+tableauserverclient==0.5.1
+urllib3==1.22
+ZabbixSender==0.2.7
