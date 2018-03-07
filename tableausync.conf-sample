@@ -1,15 +1,14 @@
 [Common]
-do_something = t
+do_something = True
 
 [AD]
-server = dc1.firma.loc
+server = activedirectory.identity.nd.edu
 user = tableau-bot
 password = ********
-tableau_root_ou = OU=Tableau,DC=firma,DC=loc
-users_root_ou = DC=firma,DC=loc
+tableau_root_ou = OU=Groups,DC=ND,DC=EDU
+users_root_ou = DC=ND,DC=EDU
 
 [Tableau]
-server = https://tableau.firma.loc
+server = https://bi-tableau-dev.oit.nd.edu
 password = ******
-username = sadmin
-serviceAccounts = bot1,bot2,sadmin
+username = tableau-admin

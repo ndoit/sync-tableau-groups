@@ -102,38 +102,10 @@ class AD:
         else:
             return result
 
-    # def get_tableau_ous(self):
-    #     adsites = self._search(self.tableau_root_ou, '(objectClass=organizationalUnit)', LEVEL,
-    #                            ['name', 'distinguishedName'])
-    #     return list(x.entry_attributes_as_dict for x in adsites)
-
-    # def get_all_site_users(self, tableausite):
-    #     self.logger.debug("Get all users on site {0}".format(tableausite.name))
-    #     site_users = []
-    #     groups = self.get_site_groups(tableausite)
-    #     for group in groups:
-    #         members = self._get_group_members(group.distinguishedName.value)
-    #         [site_users.append(newuser) for newuser in members if
-    #          not any(user.sAMAccountName.value == newuser.sAMAccountName.value for user in site_users)]
-
-    #     return site_users
-
-    # def get_user_by_samaccountname(self, samaccountname):
-    #     result = self._search(self.users_root_ou,
-    #                           '(&(objectCategory=person)(objectClass=user)(sAMAccountName={0}))'.format(samaccountname),
-    #                           SUBTREE, ['name', 'distinguishedName', 'mail', 'samaccountname', 'objectcategory',
-    #                                     'accountExpires', 'enabled', 'objectClass'])
-    #     return result
-
     def get_group_by_samaccountname(self, samaccountname):
         result = self._search(self.tableau_root_ou, '(Name={0})'.format(samaccountname), SUBTREE,
                               ['distinguishedName', 'name', 'member'])
         return result
-
-    # def get_site_groups(self, tableausite):
-    #     group_search_base = "OU={0},{1}".format(tableausite.name, self.tableau_root_ou)
-    #     groups = self._search(group_search_base, '(objectClass=Group)', LEVEL, ['name', 'distinguishedName'])
-    #     return groups
 
 def main():
     logger.debug('Loading config...')
@@ -167,6 +139,9 @@ def main():
 
     with tableau_server.auth.sign_in(tableau_auth):
         opts = TSC.RequestOptions(pagesize=1000)
+        tableau_all_site_users = [user for user in TSC.Pager(tableau_server.users) if user.site_role != 'Unlicensed']
+        tableau_unlicensed_users = [user for user in TSC.Pager(tableau_server.users) if user.site_role == 'Unlicensed']
+            
         for group in TSC.Pager(tableau_server.groups):
             # get ad_members_set for this group
             if(not group.name == 'All Users'):
@@ -191,11 +166,13 @@ def main():
                 if do_something:
                     for new_member in add_members:
                         logger.debug("Adding user:{0}".format(new_member))
+                        user_id = [user.id for user in tableau_all_site_users if user.name == new_member].pop()
                         tableau_server.groups.add_user(user_id=user_id, group_item=group)
 
                 if do_something:
                     for old_member in remove_members:
                         logger.debug("Removing user:{0}".format(old_member))
+                        user_id = [user.id for user in tableau_all_site_users if user.name == old_member][0]
                         tableau_server.groups.remove_user(user_id=user_id, group_item=group)
 
 if __name__ == '__main__':
